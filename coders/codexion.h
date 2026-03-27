@@ -6,7 +6,7 @@
 /*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/27 16:31:02 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/27 19:06:00 by alamliti         ###   ########.fr       */
+/*   Updated: 2026/03/27 20:13:29 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define CODEXION_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
 #include <ctype.h>

@@ -6,7 +6,7 @@
 /*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/27 18:17:46 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/27 18:42:13 by alamliti         ###   ########.fr       */
+/*   Updated: 2026/03/27 20:23:52 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-    static t_system *sys;
+    t_system *sys = malloc(sizeof(t_system) * int argv[1]);
     if (argc != 9 || parse_args(argv, sys))
         return (1);
     return (0);
