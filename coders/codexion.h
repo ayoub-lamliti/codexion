@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/27 16:31:02 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/28 01:24:42 by ayoub-lec        ###   ########.fr       */
+/*   Created: 2026/03/28 10:06:33 by alamliti          #+#    #+#             */
+/*   Updated: 2026/03/28 17:35:35 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include <stdlib.h>
 # include <string.h>
 # include <pthread.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 typedef struct s_system	t_system;
 

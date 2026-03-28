@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/27 18:17:46 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/28 01:25:35 by ayoub-lec        ###   ########.fr       */
+/*   Updated: 2026/03/28 10:05:58 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	if (init_system(&sys))
+    {
+        printf("Error: Invalid malloc initialization\n");    
 		return (1);
+    }
 	return (0);
 }
