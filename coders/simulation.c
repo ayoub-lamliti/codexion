@@ -1,28 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
+/*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/27 18:17:46 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/28 01:25:35 by ayoub-lec        ###   ########.fr       */
+/*   Created: 2026/03/28 01:32:29 by ayoub-lec         #+#    #+#             */
+/*   Updated: 2026/03/28 01:33:14 by ayoub-lec        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./codexion.h"
-
-int	main(int argc, char **argv)
-{
-	t_system	sys;
-
-	memset(&sys, 0, sizeof(t_system));
-	if (argc != 9 || parse_args(argv, &sys))
-	{
-		printf("Error: Invalid arguments\n");
-		return (1);
-	}
-	if (init_system(&sys))
-		return (1);
-	return (0);
-}
+long long get_time_in_ms(void) {}
+int start_simulation(t_system *sys) {}
