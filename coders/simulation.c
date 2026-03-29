@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
+/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/28 10:07:00 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/29 01:20:23 by ayoub-lec        ###   ########.fr       */
+/*   Updated: 2026/03/29 15:32:27 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,43 @@ void *coder_routine(void *coder)
     return (NULL);
 }
 
-void check_death(t_system *sys) {}
+void check_death(t_system *sys)
+{
+    long long current_time;
+    int i;
+    int finished_coders;
+
+    while (1)
+    {
+        i = 0;
+        finished_coders = 0;
+        while (i < sys->number_of_coders)
+        {
+            pthread_mutex_lock(&sys->state);
+            current_time = get_time_in_ms() - sys->coders[i].last_compile_start;
+            if (sys->time_to_burnout <= current_time)
+            {
+                sys->simulation_stop = 1;
+                pthread_mutex_lock(&sys->log);
+                current_time = get_time_in_ms() - sys->start_time;
+                printf("%lld %d %s\n", current_time, sys->coders[i].id, "burned out");
+                pthread_mutex_unlock(&sys->log);
+                pthread_mutex_unlock(&sys->state);
+                return;
+            }
+            pthread_mutex_unlock(&sys->state);
+            i++;
+        }
+        pthread_mutex_lock(&sys->state);
+        if (sys->simulation_stop == 1)
+        {
+            pthread_mutex_unlock(&sys->state);
+            return;
+        }
+        pthread_mutex_unlock(&sys->state);
+        usleep(1000);
+    }
+}
 
 int start_simulation(t_system *sys)
 {
