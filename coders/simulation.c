@@ -3,14 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/28 10:07:00 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/28 17:13:58 by alamliti         ###   ########.fr       */
+/*   Updated: 2026/03/29 01:20:23 by ayoub-lec        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./codexion.h"
+
+static void print_msg(t_system *sys, int id, char *msg)
+{
+    long long current_time;
+
+    pthread_mutex_lock(&sys->log);
+
+    pthread_mutex_lock(&sys->state);
+    if (sys->simulation_stop == 1)
+    {
+        pthread_mutex_unlock(&sys->state);
+        pthread_mutex_unlock(&sys->log);
+        return;
+    }
+    pthread_mutex_unlock(&sys->state);
+
+    current_time = get_time_in_ms() - sys->start_time;
+
+    printf("%lld %d %s\n", current_time, id, msg);
+
+    pthread_mutex_unlock(&sys->log);
+}
 
 long long get_time_in_ms(void)
 {
@@ -20,19 +42,80 @@ long long get_time_in_ms(void)
     return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
+void check_death(t_system *sys) {}
+
 void *coder_routine(void *coder)
 {
     t_coder *_coder = ((t_coder *)coder);
+    t_dongle *first_dongle;
+    t_dongle *second_dongle;
+
     if (_coder->id % 2 == 0)
-        usleep(1000);
+    {
+        first_dongle = _coder->right_dongle;
+        second_dongle = _coder->left_dongle;
+    }
+    else
+    {
+        first_dongle = _coder->left_dongle;
+        second_dongle = _coder->right_dongle;
+    }
+    if (_coder->sys->number_of_coders == 1)
+    {
+        pthread_mutex_lock(&first_dongle->mutex);
+        print_msg(_coder->sys, _coder->id, "has taken a dongle");
+        while (1)
+        {
+            pthread_mutex_lock(&_coder->sys->state);
+            if (_coder->sys->simulation_stop)
+            {
+                pthread_mutex_unlock(&_coder->sys->state);
+                break;
+            }
+            pthread_mutex_unlock(&_coder->sys->state);
+            usleep(1000);
+        }
+        pthread_mutex_unlock(&first_dongle->mutex);
+        return (NULL);
+    }
+    while (1)
+    {
+        pthread_mutex_lock(&_coder->sys->state);
+        if (_coder->sys->simulation_stop)
+        {
+            pthread_mutex_unlock(&_coder->sys->state);
+            break;
+        }
+        pthread_mutex_unlock(&_coder->sys->state);
 
+        pthread_mutex_lock(&first_dongle->mutex);
+        print_msg(_coder->sys, _coder->id, "has taken a dongle");
 
+        pthread_mutex_lock(&second_dongle->mutex);
+        print_msg(_coder->sys, _coder->id, "has taken a dongle");
 
-        
+        pthread_mutex_lock(&_coder->sys->state);
+        _coder->last_compile_start = get_time_in_ms();
+        _coder->compile_count += 1;
+        pthread_mutex_unlock(&_coder->sys->state);
+        print_msg(_coder->sys, _coder->id, "is compiling");
+
+        usleep(_coder->sys->time_to_compile * 1000);
+
+        pthread_mutex_unlock(&second_dongle->mutex);
+        pthread_mutex_unlock(&first_dongle->mutex);
+
+        print_msg(_coder->sys, _coder->id, "is debugging");
+
+        usleep(_coder->sys->time_to_debug * 1000);
+
+        print_msg(_coder->sys, _coder->id, "is refactoring");
+    }
+
     return (NULL);
 }
 
-void check_death(t_system *sys){}
+void check_death(t_system *sys) {}
 
 int start_simulation(t_system *sys)
 {
