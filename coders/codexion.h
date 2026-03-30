@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   codexion.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/28 10:06:33 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/28 17:35:35 by alamliti         ###   ########.fr       */
+/*   Updated: 2026/03/30 18:32:07 by ayoub-lec        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,9 @@ typedef struct s_system
 	t_coder			*coders;
 }	t_system;
 
-int	parse_args(char **argv, t_system *sys);
-int	init_system(t_system *sys);
+int		parse_args(char **argv, t_system *sys);
+int		init_system(t_system *sys);
+void	check_death(t_system *sys);
+int		start_simulation(t_system *sys);
 
 #endif

@@ -3,14 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ayoub-lec <ayoub-lec@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/28 10:07:00 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/29 15:32:27 by alamliti         ###   ########.fr       */
+/*   Updated: 2026/03/30 18:55:05 by ayoub-lec        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./codexion.h"
+
+long long get_time_in_ms(void)
+{
+    struct timeval time;
+    if (gettimeofday(&time, NULL) == -1)
+        return (-1);
+    return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
+}
 
 static void print_msg(t_system *sys, int id, char *msg)
 {
@@ -33,16 +41,6 @@ static void print_msg(t_system *sys, int id, char *msg)
 
     pthread_mutex_unlock(&sys->log);
 }
-
-long long get_time_in_ms(void)
-{
-    struct timeval time;
-    if (gettimeofday(&time, NULL) == -1)
-        return (-1);
-    return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
-}
-
-void check_death(t_system *sys) {}
 
 void *coder_routine(void *coder)
 {
@@ -132,23 +130,25 @@ void check_death(t_system *sys)
             if (sys->time_to_burnout <= current_time)
             {
                 sys->simulation_stop = 1;
+                pthread_mutex_unlock(&sys->state);
                 pthread_mutex_lock(&sys->log);
                 current_time = get_time_in_ms() - sys->start_time;
                 printf("%lld %d %s\n", current_time, sys->coders[i].id, "burned out");
                 pthread_mutex_unlock(&sys->log);
-                pthread_mutex_unlock(&sys->state);
                 return;
             }
+            if (sys->coders[i].compile_count >= sys->number_of_compiles_required)
+                finished_coders++;
             pthread_mutex_unlock(&sys->state);
             i++;
         }
-        pthread_mutex_lock(&sys->state);
-        if (sys->simulation_stop == 1)
+        if (finished_coders == sys->number_of_coders)
         {
+            pthread_mutex_lock(&sys->state);
+            sys->simulation_stop = 1;
             pthread_mutex_unlock(&sys->state);
             return;
         }
-        pthread_mutex_unlock(&sys->state);
         usleep(1000);
     }
 }
