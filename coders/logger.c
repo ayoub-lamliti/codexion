@@ -1,32 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   simulation.c                                       :+:      :+:    :+:   */
+/*   logger.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/28 10:07:00 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/31 12:13:25 by alamliti         ###   ########.fr       */
+/*   Created: 2026/03/31 11:35:28 by alamliti          #+#    #+#             */
+/*   Updated: 2026/03/31 12:22:09 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./codexion.h"
 
-int	start_simulation(t_system *sys)
+void	logger(t_system *sys, int id, char *msg)
 {
-	int	i;
+	long long	current_time;
 
-	i = 0;
-	sys->start_time = get_time_in_ms();
-	if (sys->start_time == -1)
-		return (1);
-	while (i < sys->number_of_coders)
+	pthread_mutex_lock(&sys->log);
+	pthread_mutex_lock(&sys->state);
+	if (sys->simulation_stop == 1)
 	{
-		sys->coders[i].last_compile_start = sys->start_time;
-		if (pthread_create(&sys->coders[i].thread_id, NULL,
-				coder_routine, &sys->coders[i]) != 0)
-			return (1);
-		i++;
+		pthread_mutex_unlock(&sys->state);
+		pthread_mutex_unlock(&sys->log);
+		return ;
 	}
-	return (0);
+	pthread_mutex_unlock(&sys->state);
+	current_time = get_time_in_ms() - sys->start_time;
+	printf("%lld %d %s\n", current_time, id, msg);
+	pthread_mutex_unlock(&sys->log);
 }
