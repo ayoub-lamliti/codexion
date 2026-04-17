@@ -5,49 +5,63 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: alamliti <alamliti@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/27 18:17:46 by alamliti          #+#    #+#             */
-/*   Updated: 2026/03/31 12:37:36 by alamliti         ###   ########.fr       */
+/*   Created: 2026/04/17 20:08:33 by alamliti          #+#    #+#             */
+/*   Updated: 2026/04/17 20:16:03 by alamliti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./codexion.h"
+#include "codexion.h"
 
-static int	parse_and_init(int argc, char **argv, t_system *sys)
+static void	create_threads(t_system *sys)
 {
-	if (argc != 9 || parse_args(argv, sys))
+	int	i;
+
+	i = -1;
+	while (++i < sys->number_of_coders)
 	{
-		printf("Error: Invalid arguments\n");
-		return (1);
+		if (pthread_create(&sys->coders[i].thread_id, NULL,
+				start_simulation, &sys->coders[i]) == 0)
+			sys->threads_created++;
+		else
+		{
+			printf("\033[31mError\033[0m: Failed to create thread %d\n", i);
+			pthread_mutex_lock(&sys->state);
+			sys->stop_simulation = 1;
+			pthread_mutex_unlock(&sys->state);
+			break ;
+		}
 	}
-	if (init_system(sys))
-	{
-		printf("Error: Invalid malloc/mutex initialization\n");
-		return (1);
-	}
-	return (0);
+	if (sys->threads_created == sys->number_of_coders)
+		pthread_create(&sys->monitor, NULL, monitor, sys);
+}
+
+static void	join_threads(t_system *sys)
+{
+	int	i;
+
+	if (sys->threads_created == sys->number_of_coders)
+		pthread_join(sys->monitor, NULL);
+	i = -1;
+	while (++i < sys->threads_created)
+		pthread_join(sys->coders[i].thread_id, NULL);
 }
 
 int	main(int argc, char **argv)
 {
 	t_system	sys;
-	int			i;
 
-	memset(&sys, 0, sizeof(t_system));
-	if (parse_and_init(argc, argv, &sys))
+	if (argc != 9)
+	{
+		printf("\033[31mError\033[0m: invalid number of arguments\n");
 		return (1);
-	if (start_simulation(&sys))
-		printf("Error: Thread creation failed\n");
-	else
-		check_death(&sys);
-	i = -1;
-	while (++i < sys.number_of_coders)
-		pthread_join(sys.coders[i].thread_id, NULL);
-	i = -1;
-	while (++i < sys.number_of_coders)
-		pthread_mutex_destroy(&sys.dongles[i].mutex);
-	pthread_mutex_destroy(&sys.state);
-	pthread_mutex_destroy(&sys.log);
-	free(sys.dongles);
-	free(sys.coders);
+	}
+	if (parser_and_init(argv, &sys))
+		return (1);
+	if (init_allocs(&sys))
+		return (1);
+	init_coders(&sys);
+	create_threads(&sys);
+	join_threads(&sys);
+	cleanup_system(&sys);
 	return (0);
 }
